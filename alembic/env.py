@@ -26,6 +26,9 @@ if config.config_file_name is not None:
 # Import all models here so Alembic can detect them
 from models.user import User  # noqa: F401
 from models.file import File  # noqa: F401
+from models.task import Task  # noqa: F401
+from models.reasoning_trace import ReasoningTrace  # noqa: F401
+from models.risk_assessment import TaskRiskAssessment  # noqa: F401
 
 # Set the target metadata for autogenerate
 target_metadata = SQLModel.metadata

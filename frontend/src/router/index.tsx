@@ -8,6 +8,7 @@ import { ApiProvider } from "@/contexts/ApiContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Layout } from "@/components/layout/Layout";
 import { HomePage } from "@/pages/HomePage";
+import { TasksPage } from "@/pages/TasksPage";
 import { LoginPage } from "@/pages/LoginPage";
 import { SignUpPage } from "@/pages/SignUpPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
@@ -33,6 +34,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <HomePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "tasks",
+        element: (
+          <ProtectedRoute>
+            <TasksPage />
           </ProtectedRoute>
         ),
       },

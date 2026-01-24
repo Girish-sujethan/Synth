@@ -59,6 +59,15 @@ export const API_ENDPOINTS = {
   validator: {
     base: "/validator",
   },
+  // Tasks and risk assessment endpoints
+  tasks: {
+    base: "/tasks",
+    list: "/tasks",
+    create: "/tasks",
+    get: (taskId: number) => `/tasks/${taskId}`,
+    assessRisks: (taskId: number) => `/tasks/${taskId}/assess-risks`,
+    riskAssessment: (taskId: number) => `/tasks/${taskId}/risk-assessment`,
+  },
 } as const;
 
 /**

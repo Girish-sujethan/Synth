@@ -2,7 +2,7 @@
  * Query hook for GET operations with caching and refetch capabilities.
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { ApiQueryResult, ApiRequestConfig } from "@/types/api";
 import { apiGet } from "@/lib/api-client";
 import { useApiContext } from "@/contexts/ApiContext";
@@ -29,6 +29,14 @@ export function useApiQuery<TData = unknown>(
   const { defaultConfig } = useApiContext();
   const { enabled = true, refetchInterval, ...config } = options;
 
+  // Use ref to store config to avoid recreating fetchData on every render
+  const configRef = useRef(config);
+  configRef.current = config;
+
+  // Memoize the endpoint to avoid unnecessary re-renders
+  const endpointRef = useRef(endpoint);
+  endpointRef.current = endpoint;
+
   const [state, setState] = useState<ApiQueryResult<TData>>({
     data: null,
     loading: enabled,
@@ -50,8 +58,8 @@ export function useApiQuery<TData = unknown>(
       }
 
       try {
-        const finalConfig = { ...defaultConfig, ...config };
-        const response = await apiGet<TData>(endpoint, finalConfig);
+        const finalConfig = { ...defaultConfig, ...configRef.current };
+        const response = await apiGet<TData>(endpointRef.current, finalConfig);
 
         if (response.success && response.data) {
           setState((prev) => ({
@@ -96,7 +104,7 @@ export function useApiQuery<TData = unknown>(
         return null;
       }
     },
-    [endpoint, defaultConfig, config]
+    [defaultConfig] // Only depend on defaultConfig, use refs for endpoint and config
   );
 
   /**
@@ -104,18 +112,18 @@ export function useApiQuery<TData = unknown>(
    */
   const refetch = useCallback(
     async (refetchConfig?: ApiRequestConfig): Promise<TData | null> => {
-      const mergedConfig = { ...config, ...refetchConfig };
       return fetchData(true);
     },
-    [fetchData, config]
+    [fetchData]
   );
 
-  // Initial fetch
+  // Initial fetch - only run when enabled changes or on mount
   useEffect(() => {
     if (enabled) {
       fetchData();
     }
-  }, [enabled, fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled]); // Only depend on enabled, fetchData is stable
 
   // Refetch interval
   useEffect(() => {
@@ -128,7 +136,8 @@ export function useApiQuery<TData = unknown>(
     }, refetchInterval);
 
     return () => clearInterval(interval);
-  }, [refetchInterval, enabled, fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refetchInterval, enabled]); // Only depend on refetchInterval and enabled
 
   return {
     ...state,

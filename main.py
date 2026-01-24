@@ -51,9 +51,23 @@ app = FastAPI(
 )
 
 # Configure CORS
+# In development, allow common frontend origins
+# In production, configure specific allowed origins
+if settings.is_development:
+    allowed_origins = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174",
+    ]
+else:
+    allowed_origins = []  # Configure for production
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if settings.is_development else [],  # Configure for production
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -106,6 +120,7 @@ from api.routes import (
     common_router,
     graph_router,
     validator_router,
+    tasks_router,
     health_routes,
 )
 from api.routes import storage as storage_routes
@@ -132,6 +147,12 @@ app.include_router(
     validator_router,
     prefix=api_v1_prefix,
     tags=["validator"]
+)
+
+app.include_router(
+    tasks_router,
+    prefix=api_v1_prefix,
+    tags=["tasks"]
 )
 
 app.include_router(

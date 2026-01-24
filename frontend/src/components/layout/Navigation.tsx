@@ -19,7 +19,11 @@ const navItems: NavItem[] = [
     path: "/",
     requireAuth: true,
   },
-  // Add more navigation items as needed
+  {
+    label: "Tasks",
+    path: "/tasks",
+    requireAuth: true,
+  },
 ];
 
 /**
