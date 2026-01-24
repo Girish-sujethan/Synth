@@ -1,0 +1,1 @@
+"""Synth FastAPI application."""
